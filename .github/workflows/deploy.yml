@@ -1,0 +1,36 @@
+name: Deploy Estático para (HTML/CSS/Javascript)
+on: 
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+        # --- NOVO PASSO: GERAR METADADOS DO DEPLOY ---
+      - name: Gerar JSON de Identidade
+        run: |
+          echo '{
+            "alias": "${{ vars.ALIAS_NAME }}",
+            "projeto": "${{ vars.PROJETO_NAME }}",
+            "data_deploy": "$(date +'%d/%m/%Y %H:%M')",
+            "infra": "Inetz Swarm Cluster"
+          }' > info.json
+
+
+
+
+
+      - name: Publicar via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ vars.SSH_PORT }}
+          source: "."
+          # Estrutura: /projetos/adriano/meu-site-novo
+          target: "/var/inetpub/wwwroot/projetos/${{ vars.ALIAS_NAME }}/${{ vars.PROJETO_NAME }}"
+          strip_components: 0

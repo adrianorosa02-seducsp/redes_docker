@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inetz Cloud | Deploy Sucesso</title>
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-pill::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(58, 123, 213, 0.1), rgba(0, 210, 255, 0.1));
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .badge {
+            background: #1e293b;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(0, 210, 255, 0.1);
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="status-pill">SISTEMA ONLINE 7/24</div>
+        <h1>Projeto: <span id="proj-name">Carregando...</span></h1>
+        <p class="hero-text">Aplicação publicada com sucesso no cluster de alta disponibilidade <strong>Inetz Private Cloud</strong>.</p>
+
+        <div class="grid">
+            <div class="card">
+                <h3>🌩️ Cluster Swarm</h3>
+                <p>Este projeto não reside em um servidor comum, mas em um ambiente de nuvem privada resiliente, garantindo disponibilidade contínua.</p>
+            </div>
+            <div class="card">
+                <h3>⚙️ Deploy Automatizado</h3>
+                <p>Publicação via <strong>GitHub Actions</strong> diretamente para o cluster. Ciclo completo de DevOps integrado ao ensino médio.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <h4>🎯 Recurso Integrador SEDUC/SP</h4>
+            <p style="font-size: 0.95rem; margin: 0;">O desenvolvimento deste portfólio é parte essencial da sua jornada como Desenvolvedor de Sistemas. Ter seus projetos online demonstra prontidão para os desafios reais do mercado de tecnologia.</p>
+        </div>
+
+        <footer>
+            <div>DESENVOLVEDOR: <span class="badge" id="user-alias">Aguardando...</span></div>
+            <div>STATUS: <span class="badge">PRODUÇÃO</span></div>
+            <div style="text-align: right;"><small>Infra: Swarm Cluster 01</small></div>
+        </footer>
+    </div>
+
+    <script>
+        // Lógica inteligente: consome o JSON gerado dinamicamente no deploy
+        async function loadConfig() {
+            try {
+                const response = await fetch('./info.json');
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                
+                document.getElementById('proj-name').textContent = data.projeto || "Indefinido";
+                document.getElementById('user-alias').textContent = data.alias || "Desconhecido";
+            } catch (err) {
+                // Caso o JSON ainda não exista (ex: rodando localmente)
+                document.getElementById('proj-name').textContent = "Local Host";
+                document.getElementById('user-alias').textContent = "Desenvolvedor Local";
+            }
+        }
+        loadConfig();
+    </script>
+</body>
+</html>
