@@ -1,0 +1,162 @@
+version: "3.8"
+
+services:
+
+  marketing-terminal:
+    image: alpine:3.22
+    hostname: marketing-terminal
+
+    command:
+      - /bin/sh
+      - -c
+      - |
+        apk add --no-cache ttyd bash openssh-client iproute2 iputils curl wget netcat-openbsd traceroute bind-tools
+
+        exec ttyd -W -p 7681 \
+          -t fontSize=16 \
+          -t cursorBlink=true \
+          bash -c '
+            clear
+            echo "=============================================="
+            echo "       LABORATORIO DE REDES - marketing"
+            echo "=============================================="
+            echo ""
+            echo "Terminal inicial do laboratorio."
+            echo ""
+            echo "Servidor:"
+            echo "    lab-server"
+            echo ""
+            echo "Acesso SSH:"
+            echo "    ssh aluno@lab-server"
+            echo ""
+            echo "Usuario:"
+            echo "    aluno"
+            echo ""
+            echo "=============================================="
+            echo ""
+            exec bash
+          '
+
+    networks:
+      - dockermaster
+      - lab_backend
+
+    deploy:
+      replicas: 1
+
+      resources:
+        limits:
+          memory: 128M
+
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=dockermaster"
+        - "traefik.http.routers.lab-marketing.rule=Host(`lab-marketing.inetz.com.br`)"
+        - "traefik.http.routers.lab-marketing.entrypoints=websecure"
+        - "traefik.http.routers.lab-marketing.tls=true"
+        - "traefik.http.routers.lab-marketing.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.lab-marketing.loadbalancer.server.port=7681"
+
+
+  lab-server:
+    image: ubuntu:24.04
+    hostname: lab-server
+
+    environment:
+      LAB_USER: aluno
+      LAB_PASSWORD: "Laboratorio@123"
+
+    command:
+      - /bin/bash
+      - -c
+      - |
+        export DEBIAN_FRONTEND=noninteractive
+
+        apt-get update
+
+        apt-get install -y \
+          openssh-server \
+          iproute2 \
+          iputils-ping \
+          net-tools \
+          curl \
+          wget \
+          dnsutils \
+          netcat-openbsd \
+          traceroute \
+          vim \
+          nano \
+          sudo
+
+        mkdir -p /run/sshd
+
+        if ! id "$$LAB_USER" >/dev/null 2>&1; then
+          useradd -m -s /bin/bash "$$LAB_USER"
+        fi
+
+        echo "$$LAB_USER:$$LAB_PASSWORD" | chpasswd
+
+        usermod -aG sudo "$$LAB_USER"
+
+        sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+        sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+        grep -q "^PasswordAuthentication yes" /etc/ssh/sshd_config || \
+          echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+
+        cat > /etc/motd <<'EOF'
+
+        ==============================================
+             LAB-SERVER
+        ==============================================
+
+        Servidor de laboratorio da empresa.
+
+        Usuario:
+            aluno
+
+        Acesso:
+            SSH
+
+        Departamento:
+            Marketing
+
+        ==============================================
+
+        EOF
+
+        ssh-keygen -A
+
+        echo ""
+        echo "=============================================="
+        echo "          LAB-SERVER PRONTO"
+        echo "=============================================="
+        echo ""
+        echo "Hostname: lab-server"
+        echo "Usuario:  aluno"
+        echo "SSH:      ativo"
+        echo ""
+        echo "=============================================="
+        echo ""
+
+        exec /usr/sbin/sshd -D -e
+
+    networks:
+      - lab_backend
+
+    deploy:
+      replicas: 1
+
+      resources:
+        limits:
+          memory: 512M
+
+
+networks:
+
+  dockermaster:
+    external: true
+
+  lab_backend:
+    driver: overlay
+    attachable: true
