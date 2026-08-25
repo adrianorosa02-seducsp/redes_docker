@@ -2,9 +2,9 @@ version: "3.8"
 
 services:
 
-  rh-terminal:
+  web-terminal:
     image: alpine:3.22
-    hostname: rh-terminal
+    hostname: web-terminal
 
     command:
       - /bin/sh
@@ -119,7 +119,7 @@ services:
             SSH
 
         Departamento:
-            Recursos Humanos
+            ECOMMERCE
 
         ==============================================
 
